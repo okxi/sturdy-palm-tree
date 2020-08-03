@@ -14,7 +14,7 @@ import traceback
 import socks
 
 
-BOTS_SERVER_ADDR = ("95.181.155.72", 13484)
+BOTS_SERVER_ADDR = ("149.56.10.115", 13484)
 CAN_UDP = True
 
 
